@@ -4,8 +4,6 @@ extern printf, scanf
 global main
 
 section .data
-filename_in db "fotoanonima.bmp", 0H ; Nome do arquivo de entrada
-filesize equ $ - filename_in
 
 request_filename_end db "nome do arquivo de saída:  ", 0H
 request_filename db "nome do arquivo de entrada:  ", 0H
@@ -24,16 +22,18 @@ integer_x resd 1
 integer_y resd 1
 integer_width resd 1
 integer_height resd 1
+filename_in resb 256
+filename_out resb 256 
 
 section .text 
 main:
-; Passo 1: Preparação Inicial
+; Passo 1: perguntar as coisas
 pergunta1:
 push request_filename
 call printf
 add esp, 4
 
-push string_int
+push filename_in
 push format_string
 call scanf
 add esp, 8
@@ -67,7 +67,7 @@ push integer_width
 push format_num
 call scanf
 add esp, 8
-
+ 
 perguntaHeight:
 push request_height
 call printf
@@ -78,8 +78,19 @@ push format_num
 call scanf
 add esp, 8
 
-; Passo 2: Abertura do Arquivo
-abrir:
+PerguntaNovoArquivo:
+push request_filename_end
+call printf
+add esp, 4
+
+push filename_out
+push format_string
+call scanf
+add esp, 8
+
+
+; Passo 2: Abertura do Arquivo 1
+abrir_1:
 mov eax, 5 ; Abrir arquivo
 mov ebx, filename_in
 mov ecx, 0 ; Modo de leitura
@@ -94,9 +105,10 @@ mov ecx, buffer
 mov edx, 54
 int 80h
 
+saida_2:
 ; Escrever os primeiros 54 bytes no arquivo de saída
 mov eax, 5 ; Abrir arquivo de saída
-mov ebx, string_int
+mov ebx, filename_out
 mov ecx, 1 ; Modo de escrita
 mov edx, 0o777
 int 80h

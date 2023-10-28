@@ -14,7 +14,7 @@ SYS_READ    equ 3 ;operacao de leitura
 SYS_WRITE   equ 4 ; operacao de escrita
  
 READ_FILE   equ 3 ;ler o arquivo
-WRITE_FILE  equ 3 ;ler o arquivo
+WRITE_FILE  equ 4 ;ler o arquivo
 OPEN_FILE   equ 5 ; abrir o arquivo
 CLOSE_FILE  equ 6 ;fechar o arquivo ou sys_close
 CREATE_FILE equ 8 ;criar arquivo
