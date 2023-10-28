@@ -123,3 +123,9 @@ linha_loop:
     mov ecx, buffer
     mov edx, 6480 ;
     int 80h
+
+
+fim:
+mov eax, 1
+xor ebx, ebx
+int 80h
