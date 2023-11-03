@@ -12,6 +12,7 @@ request_width db "largura do retângulo:  ", 0AH,0H
 request_height db "altura do retângulo:  ", 0AH,0H
 format_string db "%s",0H
 format_num db "%d",0H
+output_filename db "nome_do_arquivo_de_saida.bmp", 0
 
 section .bss
 fileHandle resd 1 ; Handle do arquivo
@@ -93,7 +94,7 @@ main:
     mov eax, 5 ; Abrir arquivo
     mov ebx, filename_in
     mov ecx, 0 ; Modo de leitura
-    mov edx, 0o777
+    mov edx, 0777
     int 80h
     mov [fileHandle], eax
 
@@ -106,40 +107,40 @@ main:
 
     ; Ler e escrever os primeiros 18 bytes (14 + 4) do arquivo
     mov eax, 3
-    mov ebx, [file_handle]
+    mov ebx, [fileHandle]
     mov ecx, buffer
     mov edx, 18
     int 80h
     mov eax, 4
-    mov ebx, [file_handle]
+    mov ebx, [fileHandle]
     mov ecx, buffer
     mov edx, 18
     int 80h
 
     ; Ler 4 bytes referentes à largura da imagem
     mov eax, 3
-    mov ebx, [file_handle]
-    mov ecx, [width]
+    mov ebx, [fileHandle]
+    mov ecx, integer_width
     mov edx, 4
     int 80h
 
     ; Escrever os 4 bytes no arquivo de saída
     mov eax, 4
-    mov ebx, [file_handle]
-    mov ecx, [output_file]
+    mov ebx, [fileHandle]
+    mov ecx, [output_filename]
     mov edx, 4
     int 80h
 
     ; Ler os 32 bytes restantes do cabeçalho da imagem
     mov eax, 3
-    mov ebx, [file_handle]
+    mov ebx, [fileHandle]
     mov ecx, buffer
     mov edx, 32
     int 80h
 
     ; Escrever os 32 bytes no arquivo de saída
     mov eax, 4
-    mov ebx, [file_handle]
+    mov ebx, [fileHandle]
     mov ecx, buffer
     mov edx, 32
     int 80h
@@ -149,7 +150,7 @@ main:
     mov eax, 5 ; Abrir arquivo de saída
     mov ebx, filename_out
     mov ecx, 1 ; Modo de escrita
-    mov edx, 0o777
+    mov edx, 0777
     int 80h
     mov [fileHandle], eax
 
@@ -161,7 +162,7 @@ main:
 
     ; Ler os 32 bytes restantes do cabeçalho da imagem
     mov eax, 3
-    mov ebx, [file_handle]
+    mov ebx, [fileHandle]
     mov ecx, buffer
     mov edx, 32
     int 80h
@@ -175,7 +176,7 @@ main:
 
     ; Escrever os 32 bytes no arquivo de saída
     mov eax, 4
-    mov ebx, [file_handle]
+    mov ebx, [fileHandle]
     mov ecx, buffer
     mov edx, 32
     int 80h
@@ -197,15 +198,26 @@ main:
     mov esi, 3
     mov edi, 0 
      
+    ;censurar_linha:
+    ;mov byte [ecx], 0  ; Censura o componente azul
+    ;mov byte [ecx + 1], 0  ; Censura o componente verde
+    ;mov byte [ecx + 2], 0  ; Censura o componente vermelho
+    ;add ecx, 3  ; Avança para o próximo pixel
+    ;sub edx, 1  ; Decrementa a largura da censura
+    ;cmp edx, 0
+    ;je linha_loop
+    ;jmp censurar_linha
+
     censurar_linha:
-    mov byte [ecx], 0  ; Censura o componente azul
-    mov byte [ecx + 1], 0  ; Censura o componente verde
-    mov byte [ecx + 2], 0  ; Censura o componente vermelho
-    add ecx, 3  ; Avança para o próximo pixel
+    mov byte [ebx], 0  ; Censura o componente azul
+    mov byte [ebx + 1], 0  ; Censura o componente verde
+    mov byte [ebx + 2], 0  ; Censura o componente vermelho
+    add ebx, 3  ; Avança para o próximo pixel
     sub edx, 1  ; Decrementa a largura da censura
     cmp edx, 0
     je linha_loop
     jmp censurar_linha
+
 
 add esi, 1  ; Avança para a próxima linha
 sub ebp, 1  ; Decrementa a altura da censura
